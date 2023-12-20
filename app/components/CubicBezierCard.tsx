@@ -1,29 +1,44 @@
-'use client';
-import React from 'react';
-import BezierEasing from 'bezier-easing';
-import { BsPlay, BsStop } from 'react-icons/bs';
-import { FaGithub } from 'react-icons/fa';
-import useInterval from '@use-it/interval';
-import { motion } from 'framer-motion';
+"use client";
+import React from "react";
+import BezierEasing from "bezier-easing";
+import { BsPlay, BsStop } from "react-icons/bs";
+import { FaGithub } from "react-icons/fa";
+import useInterval from "@use-it/interval";
+import { motion } from "framer-motion";
 
-const defaultEasingFunctions = {
+interface EasingFunctions {
+  [key: string]: number[] | null;
+}
+
+interface CubicBezier {
+  x1: number;
+  x2: number;
+  y1: number;
+  y2: number;
+}
+
+interface TransitionSandboxProps {
+  easingFunctions?: EasingFunctions;
+}
+
+const defaultEasingFunctions: EasingFunctions = {
   linear: [0, 0, 1, 1],
   ease: [0.25, 0.1, 0.25, 1],
-  'ease-in': [0.42, 0, 1, 1],
-  'ease-out': [0, 0, 0.58, 1],
-  'ease-in-out': [0.42, 0, 0.58, 1],
-  'ease (supercharged)': [0.44, 0.21, 0, 1],
-  'ease-in (supercharged)': [0.75, 0, 1, 1],
-  'ease-out (supercharged)': [0.215, 0.61, 0.355, 1],
-  'ease-in-out (supercharged)': [0.645, 0.045, 0.355, 1],
+  "ease-in": [0.42, 0, 1, 1],
+  "ease-out": [0, 0, 0.58, 1],
+  "ease-in-out": [0.42, 0, 0.58, 1],
+  "ease (supercharged)": [0.44, 0.21, 0, 1],
+  "ease-in (supercharged)": [0.75, 0, 1, 1],
+  "ease-out (supercharged)": [0.215, 0.61, 0.355, 1],
+  "ease-in-out (supercharged)": [0.645, 0.045, 0.355, 1],
   custom: null,
 };
 
-const shapes = ['circle', 'square'];
+const shapes = ["circle", "square"];
 
-export default function TransitionSandbox({
+const TransitionSandbox: React.FC<TransitionSandboxProps> = ({
   easingFunctions = defaultEasingFunctions,
-}) {
+}) => {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [fps, setFps] = React.useState(60);
   const [easing, setEasing] = React.useState(Object.keys(easingFunctions)[0]);
@@ -34,7 +49,7 @@ export default function TransitionSandbox({
     y2: 1,
   });
   const [ghostOpacity, setGhostOpacity] = React.useState(0.2);
-  const [shape, setShape] = React.useState('circle');
+  const [shape, setShape] = React.useState("circle");
 
   const easingFunction = React.useMemo(
     () => BezierEasing(x1, y1, x2, y2),
@@ -79,8 +94,8 @@ export default function TransitionSandbox({
           <motion.div
             key={step}
             style={{
-              '--x': `${step * 100}%`,
-              '--opacity':
+              "--x": `${step * 100}%`,
+              "--opacity":
                 index === activeStepIndex
                   ? 1
                   : index > activeStepIndex
@@ -171,8 +186,8 @@ export default function TransitionSandbox({
           <CubicBezierEditor
             value={{ x1, y1, x2, y2 }}
             onChange={(curve) => {
-              if (easing !== 'custom') {
-                setEasing('custom');
+              if (easing !== "custom") {
+                setEasing("custom");
               }
               setCubicBezier(curve);
             }}
@@ -195,11 +210,11 @@ export default function TransitionSandbox({
             <ExternalLink href="https://narendras.io">Nanda</ExternalLink>.
           </li>
           <li className="max-w-sm ml-auto text-right">
-            Originally by{' '}
+            Originally by{" "}
             <ExternalLink href="https://twitter.com/JoshWComeau">
               @JoshWComeau
-            </ExternalLink>{' '}
-            in his post on{' '}
+            </ExternalLink>{" "}
+            in his post on{" "}
             <ExternalLink href="https://www.joshwcomeau.com/animation/css-transitions/">
               CSS transitions
             </ExternalLink>
@@ -209,22 +224,41 @@ export default function TransitionSandbox({
       </footer>
     </div>
   );
-}
+};
+
+export default TransitionSandbox;
 
 // --
 
-function CubicBezierEditor({ value, onChange, style }) {
+interface CubicBezierEditorProps {
+  value: { x1: number; y1: number; x2: number; y2: number };
+  onChange: (newValue: {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }) => void;
+  style?: React.CSSProperties;
+}
+
+const CubicBezierEditor: React.FC<CubicBezierEditorProps> = ({
+  value,
+  onChange,
+  style,
+}) => {
   const { x1, y1, x2, y2 } = value;
-  const handleChange = (evt) => {
+
+  const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
     onChange({
       ...value,
-      [evt.target.name]: evt.target.value,
+      [evt.target.name]: parseFloat(evt.target.value),
     });
   };
+
   return (
     <div
       className="grid grid-cols-2 gap-4"
-      style={{ gridAutoRows: 'min-content', ...style }}
+      style={{ gridAutoRows: "min-content", ...style }}
     >
       <Field label="x1">
         <input
@@ -268,16 +302,27 @@ function CubicBezierEditor({ value, onChange, style }) {
       </Field>
     </div>
   );
+};
+
+const BALL_RADIUS: number = 24;
+
+interface CubicBezierCurveProps {
+  curve: { x1: number; y1: number; x2: number; y2: number };
+  style?: React.CSSProperties;
+  progress: number;
 }
 
-const BALL_RADIUS = 24;
-
-function CubicBezierCurve({ curve, style, progress }) {
+const CubicBezierCurve: React.FC<CubicBezierCurveProps> = ({
+  curve,
+  style,
+  progress,
+}) => {
   const { x1, y1, x2, y2 } = curve;
   const currentY = BezierEasing(x1, y1, x2, y2)(progress);
   const path = `M 0 0 C ${x1 * 1000} ${y1 * 1000}, ${x2 * 1000} ${
     y2 * 1000
   }, 1000 1000`;
+
   return (
     <div
       className="max-w-sm p-4 transform border-2 border-gray-700 rounded-lg"
@@ -311,45 +356,65 @@ function CubicBezierCurve({ curve, style, progress }) {
       </svg>
     </div>
   );
-}
+};
 
 // --
 
-function Select({ className = '', onChange, options, ...props }) {
-  return (
-    <select
-      className={`block w-full p-2 pr-4 mt-2 bg-black border-2 border-gray-700 rounded-md ring-red-700 focus:outline-none focus:ring-4 ${className}`}
-      onChange={(evt) => onChange(evt.target.value)}
-      {...props}
-    >
-      {options.map((option) => (
-        <option key={option}>{option}</option>
-      ))}
-    </select>
-  );
+interface SelectProps {
+  className?: string;
+  onChange: (value: string) => void;
+  options: string[];
 }
 
-function Field({ label, className = '', children, style }) {
-  return (
-    <label className={`space-y-2 ${className}`} style={style}>
-      <span className="text-sm font-semibold uppercase">{label}</span>
-      {children}
-    </label>
-  );
+const Select: React.FC<SelectProps> = ({
+  className = "",
+  onChange,
+  options,
+  ...props
+}) => (
+  <select
+    className={`block w-full p-2 pr-4 mt-2 bg-black border-2 border-gray-700 rounded-md ring-red-700 focus:outline-none focus:ring-4 ${className}`}
+    onChange={(evt) => onChange(evt.target.value)}
+    {...props}
+  >
+    {options.map((option) => (
+      <option key={option}>{option}</option>
+    ))}
+  </select>
+);
+
+interface FieldProps {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
-function ExternalLink(props) {
-  return (
-    <a
-      className="font-semibold hover:text-red-500"
-      target="_blank"
-      rel="noreferrer"
-      {...props}
-    />
-  );
-}
+const Field: React.FC<FieldProps> = ({
+  label,
+  className = "",
+  children,
+  style,
+}) => (
+  <label className={`space-y-2 ${className}`} style={style}>
+    <span className="text-sm font-semibold uppercase">{label}</span>
+    {children}
+  </label>
+);
 
-function getSteps(easingFn, fps) {
+interface ExternalLinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {}
+
+const ExternalLink: React.FC<ExternalLinkProps> = (props) => (
+  <a
+    className="font-semibold hover:text-red-500"
+    target="_blank"
+    rel="noreferrer"
+    {...props}
+  />
+);
+
+function getSteps(easingFn: (t: number) => number, fps: number): number[] {
   const steps = Array.from({ length: fps })
     .fill(-1)
     .map((_, index) => easingFn(index / fps));
