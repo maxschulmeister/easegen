@@ -1,3 +1,5 @@
+import BezierEasing from "bezier-easing";
+
 interface Point {
   x: number;
   y: number;
@@ -75,12 +77,31 @@ for (let i = 0; i < values.short.length; i++) {
   }
 }
 
-export default Object.fromEntries(
-  Object.entries(easings).map(([key, value]) => [key, value.default])
+
+
+export const js = Object.fromEntries(
+  Object.entries(easings).map(([key, value]) => [
+    key,
+    BezierEasing(
+      value.default[0],
+      value.default[1],
+      value.default[2],
+      value.default[3]
+    ),
+  ])
 );
+
 export const css = Object.fromEntries(
   Object.entries(easings).map(([key, value]) => [key, value.css])
 );
 export const string = Object.fromEntries(
   Object.entries(easings).map(([key, value]) => [key, value.string])
 );
+
+const array = Object.fromEntries(
+  Object.entries(easings).map(([key, value]) => [key, value.default])
+);
+
+const all = {...array, css: css, string: string, js: js}
+
+export default all
