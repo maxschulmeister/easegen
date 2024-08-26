@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# easegen
 
-## Getting Started
+A library for generating a set of cubic bezier easing functions by providing a min and max points and generating all possible combinations.
 
-First, run the development server:
+## Why is this useful?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun run dev
+It provides a set of easing functions that can be used in CSS and JavaScript. Getting multiple combinations of your desired min and max points gives you granular control over your animations.
+
+## Usage
+
+```ts
+// import easegen with default values
+import easings from "easegen";
+
+// import Easegen class to use with your own values
+import { Easegen } from "easegen";
+export const easings = new Easegen(customValues);
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Custom values
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+We define different values for p1 and p2.
+The library will generate all possible combinations of p1 and p2, including p1 and p2 as zero.
+The more values you define, the more combinations you will get.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```ts
+// default values
+{
+p1:  [
+{ x:  0.2, y:  0.4  },
+{ x:  0.2, y:  0.333  },
+{ x:  0.2, y:  0.1  },
+],
+p2:  [
+{ x:  0.6, y:  0  },
+{ x:  0.666, y:  0  },
+{ x:  0.8, y:  0  },
+],
+};
+```
 
-## Learn More
+If you want to better understand how it works, you can clone the repo.
 
-To learn more about Next.js, take a look at the following resources:
+```
+npm i
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+npm run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```
 
-## Deploy on Vercel
+Will give you a nice overview of the easings.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Choosing the best easing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+For convenience, you can import EasegenProvider and useEasegen into your current app. This will render a select menu with all generated easings and lets you access the currently selected easing to test it on the animation you're currently working on.
+
+```tsx
+import { EasegenProvider, useEasegen } from "easegen";
+
+const { currentEasing } = useEasegen();
+
+<EasegenProvider>
+  {/* ... Rest of you app or any component that needs the easing */}
+
+  {/* css */}
+  <div
+    style={{
+      transitionTimingFunction: currentEasing.css,
+    }}
+  >
+    {/* ... */}
+  </div>
+
+  {/* framer-motion */}
+  <motion.div
+    animate={{ x: [0, 100] }}
+    transition={{
+      ease: currentEasing.array,
+    }}
+  ></motion.div>
+</EasegenProvider>;
+```
+
+**‼️ Make sure to remove <EasingProvider> and all usage of _useEasegen_ in production to avoid unexpected results ‼️**
