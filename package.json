@@ -1,7 +1,7 @@
 {
   "name": "easegen",
   "description": "A library for generating a set of cubic bezier easing functions by providing a min and max points and generating all possible combinations.",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "dist/easegen.umd.cjs",
   "module": "dist/easegen.js",
