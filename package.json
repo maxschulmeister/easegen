@@ -13,6 +13,17 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "keywords": [
+    "easing",
+    "animation",
+    "cubic-bezier",
+    "css",
+    "javascript",
+    "react",
+    "framer-motion",
+    "transition",
+    "timing-function"
+  ],
   "files": [
     "dist"
   ],
